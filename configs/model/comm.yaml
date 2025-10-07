@@ -11,8 +11,6 @@ model:
     n_layers: 1
     add_bias_kv: False
     dropout: 0
-    # encoders:
-    # input_adapters:
 
   projection: # Projection head 
     _target_: pl_modules.comm.CoMM._build_mlp
@@ -22,33 +20,27 @@ model:
 
   loss_kwargs: # CoMM loss
     temperature: 0.1 # Temperature in the objective function
-    curriculum_weight: 0.25 # INCREASED weight for stronger teacher guidance
+    curriculum_weight: true # INCREASED weight for stronger teacher guidance
 
   pretrained_kwargs: # Self-MM style BERT+AuViSubNet teacher config
     # BERT text teacher configuration
     language: "en"
     use_finetune: true
     use_raw_text: false  # Set to true if raw text strings are available
-    use_inputs_embeds: false  # Set to true if using inputs_embeds path
+    use_inputs_embeds: true  # Set to true if using inputs_embeds path
     # text_in allows using dataset-specific text feature size (e.g., from train_multibench.yaml encoders.n_features)
     # Set this to match cfg[dataset].encoders[TEXT].n_features
     text_in: 300
-
+    
     # AuViSubNet vision teacher configuration (for MOSEI)
-    video_in: 35     # MOSI: 20, MOSEI: 35 (using MOSEI for compatibility)
-    v_lstm_hidden_size: 32  # MOSI: 64, MOSEI: 32 (using MOSEI for compatibility)
+    video_in: 20     # MOSI: 20, MOSEI: 35 (using MOSEI for compatibility)
+    v_lstm_hidden_size: 64  # MOSI: 64, MOSEI: 32 (using MOSEI for compatibility)
     video_out: 32    # MOSI: 32, MOSEI: 32 
     v_lstm_layers: 1
     v_lstm_dropout: 0.0
-    
-    # AuViSubNet audio teacher configuration (same as vision)
-    audio_in: 81     # MOSEI: 81, MUSTARD: 81, UR-FUNNY: 81
-    a_lstm_hidden_size: 32  # Same as vision for consistency
-    audio_out: 16    # Audio output dimension
-    a_lstm_layers: 1
-    a_lstm_dropout: 0.0
     bidirectional: false
-    alpha: 0.1  # Weight for cosine similarity loss
+    # Cosine similarity penalty I(Z; Y)
+    alpha: 0.1
   
   curriculum_kwargs: # Curriculum learning config - Optimized for vision-weak MOSI
     v_tau: 0.0 # Moving average difficulty threshold (adaptive)
@@ -57,6 +49,3 @@ model:
     t_tau: 0.0 # Moving average difficulty threshold (adaptive)
     t_lam: 1.5 # INCREASED regularization for text (harder learning)
     t_fac: 0.8 # REDUCED momentum for text (faster adaptation)
-    a_tau: 0.0 # Moving average difficulty threshold (adaptive)
-    a_lam: 1.5 # INCREASED regularization for audio (harder learning)
-    a_fac: 0.8 # REDUCED momentum for audio (faster adaptation)

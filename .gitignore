@@ -7,6 +7,10 @@
 /.angular/
 .angular/
 
+# Ignore large/pretrained weights
+models/pretrained_model/**/*.bin
+models/pretrained_model/**/*.pt
+models/pretrained_model/**/*.ckpt
 # Node modules and dependency files
 /node_modules/
 /package-lock.json

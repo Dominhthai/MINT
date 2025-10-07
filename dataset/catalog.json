@@ -1,31 +1,14 @@
 {
-    "mimic": {
-        "path": "/path/to/mimic/im.pk"
-    },
     "mosi": {
-        "path": "/kaggle/input/dataset-mosi/mosi_data.pkl"
+        "path": "/path/to/dataset-mosi/mosi_data.pkl"
     },
     "mosei": {
         "path": "/path/to/mosei/mosei_senti_data.pkl"
     },
     "humor": {
-        "path": "/kaggle/input/ur-funny/data_folds.pkl"
+        "path": "/path/to/ur-funny/data_folds.pkl"
     },
     "sarcasm": {
         "path": "/path/to/sarcasm/sarcasm.pkl"
-    },
-    "visionandtouch": {
-        "path": "/path/to/visionandtouch/triangle_real_data"
-    },
-    "mmimdb": {
-        "path": "/path/to/mmimdb",
-        "metadata": "/path/to/mmimdb"
-    },
-    "hateful_memes": {
-        "path": "/path/to/hateful_memes",
-        "metadata": "/path/to/hateful_memes"
-    },
-    "trifeatures": {
-        "path": "/path/to/trifeatures_3combi"
     }
 }

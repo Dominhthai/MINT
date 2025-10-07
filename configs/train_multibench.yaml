@@ -4,7 +4,6 @@ defaults:
   - model: comm
 
 seed: 42
-ckpt_path: "./CoMM/mosi/logs/version_0/checkpoints/epoch=99-step=2100.ckpt"
 
 mode: "train"
 
@@ -19,6 +18,17 @@ trainer:
   use_distributed_sampler: false
   deterministic: false
   inference_mode: false # avoid weird bugs during linear probing
+  # Clean progress bars - Show progress but reduce verbosity
+  enable_progress_bar: true  # Keep progress bars for visual feedback
+  enable_model_summary: false  # Disable verbose model summary
+  enable_checkpointing: true
+  log_every_n_steps: 50  # Less frequent step logging
+  check_val_every_n_epoch: 1  # Validate every epoch
+  num_sanity_val_steps: 0  # Skip sanity validation (reduces startup noise)
+  reload_dataloaders_every_n_epochs: 0  # Disable dataloader reloading messages
+  # Reduce validation verbosity
+  val_check_interval: 1.0  # Validate once per epoch (not multiple times)
+  limit_val_batches: 1.0  # Use all validation batches but cleaner logging
 
 linear_probing:
   _target_: evaluation.linear_probe.LinearProbingCallback
@@ -177,16 +187,9 @@ mosi:
   modalities:
     - "vision"
     - "text"
-    - "audio"
   task: "classification"
   kwargs: # augmentations to apply
     augmentations: "drop+noise"
-    # use_specific_augmentations: true  # Set to true for deterministic augmentations
-    # # Specific augmentation configuration (only used if use_specific_augmentations=true)
-    # aug1_type: "drop"           # Augmentation for first view: drop, noise, crop, permute
-    # aug2_type: "noise"          # Augmentation for second view: drop, noise, crop, permute
-    # aug1_prob: 1.0              # Probability of applying aug1 (1.0 = always)
-    # aug2_prob: 1.0              # Probability of applying aug2 (1.0 = always)
   encoders:
     - _target_: models.transformer.Transformer
       n_features: 20 # !! according to MultiBench but not in FactorCL
@@ -194,75 +197,11 @@ mosi:
       max_seq_length: 50
       positional_encoding: false
     - _target_: models.transformer.Transformer
-      n_features: 300
+      n_features: 300 # Change to fit different .pkl files. 768 for ..50.pkl, and 300 for mosi_....pkl
       dim: 40 # !! according to FactorCL paper but not in FactorCL implementation (==600)
       max_seq_length: 50
       positional_encoding: false
-    - _target_: models.transformer.Transformer
-      n_features: 5
-      dim: 40
-      max_seq_length: 50
-      positional_encoding: false
   adapters: # not required
-    - null
-    - null
-    - null
-
-humor:
-  modalities:
-    - "vision"
-    - "text"
-    - "audio"
-  task: "classification"
-  kwargs: # augmentations to apply
-    augmentations: "drop+noise"
-  encoders:
-    - _target_: models.transformer.Transformer
-      n_features: 371
-      dim: 40
-      max_seq_length: 50
-      positional_encoding: false
-    - _target_: models.transformer.Transformer
-      n_features: 300
-      dim: 40
-      max_seq_length: 50
-      positional_encoding: false
-    - _target_: models.transformer.Transformer
-      n_features: 81
-      dim: 40
-      max_seq_length: 50
-      positional_encoding: false
-  adapters: # not required
-    - null
-    - null
-    - null
-
-sarcasm:
-  modalities:
-    - "vision"
-    - "text"
-    - "audio"
-  task: "classification"
-  kwargs: # augmentations to apply
-    augmentations: "drop+noise"
-  encoders:
-    - _target_: models.transformer.Transformer
-      n_features: 371
-      dim: 40
-      max_seq_length: 50
-      positional_encoding: false
-    - _target_: models.transformer.Transformer
-      n_features: 300
-      dim: 40
-      max_seq_length: 50
-      positional_encoding: false
-    - _target_: models.transformer.Transformer
-      n_features: 81
-      dim: 40
-      max_seq_length: 50
-      positional_encoding: false
-  adapters: # not required
-    - null
     - null
     - null
 
@@ -270,7 +209,6 @@ mosei:
   modalities:
     - "vision"
     - "text"
-    - "audio"
   task: "classification"
   kwargs: # augmentations to apply
     augmentations: "drop+noise"
@@ -285,12 +223,50 @@ mosei:
       dim: 40
       max_seq_length: 50
       positional_encoding: false
+  adapters: # not required
+    - null
+    - null
+
+humor:
+  modalities:
+    - "vision"
+    - "text"
+  task: "classification"
+  kwargs: # augmentations to apply
+    augmentations: "drop+drop"
+  encoders:
     - _target_: models.transformer.Transformer
-      n_features: 74 # Audio features from Self-MM config
+      n_features: 371
+      dim: 40
+      max_seq_length: 50
+      positional_encoding: false
+    - _target_: models.transformer.Transformer
+      n_features: 300
       dim: 40
       max_seq_length: 50
       positional_encoding: false
   adapters: # not required
     - null
+    - null
+
+sarcasm:
+  modalities:
+    - "vision"
+    - "text"
+  task: "classification"
+  kwargs: # augmentations to apply
+    augmentations: "drop+drop"
+  encoders:
+    - _target_: models.transformer.Transformer
+      n_features: 371
+      dim: 40
+      max_seq_length: 50
+      positional_encoding: false
+    - _target_: models.transformer.Transformer
+      n_features: 300
+      dim: 40
+      max_seq_length: 50
+      positional_encoding: false
+  adapters: # not required
     - null
     - null

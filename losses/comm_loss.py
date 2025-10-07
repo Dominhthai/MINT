@@ -1,4 +1,3 @@
-%%writefile /kaggle/working/CoMM/losses/comm_loss.py
 import os
 import sys
 import collections
@@ -64,10 +63,10 @@ class CoMMLoss(nn.Module):
         :return: {"loss": torch.Tensor(float), "ssl_acc": torch.Tensor(float)}
         """
         # Prepare embeddings (normalize + gather across all GPU)
-        # For 3-modality MOSEI, z1 = [vision_z1, text_z1, audio_z1, joint_z'], z2 = [vision_z2, text_z2, audio_z2, joint_z'']
-        z1, z2, prototype, vision_loss, text_loss, audio_loss, cos_sim = outputs["aug1_embed"], outputs["aug2_embed"], outputs["prototype"], outputs["v_loss"], outputs["t_loss"], outputs["a_loss"], outputs["cos_sim"]
+        # For MOSI, z1 = [vision_z1, text_z1, joint_z'], z2 = [vision_z2, text_z2, joint_z'']
+        z1, z2, prototype, vision_loss, text_loss, cos_sim = outputs["aug1_embed"], outputs["aug2_embed"], outputs["prototype"], outputs["v_loss"], outputs["t_loss"], outputs["cos_sim"]
         assert len(z1) == len(z2)
-        n_emb = len(z1) # 3-modality: 4 (vision, text, audio, joint)
+        n_emb = len(z1) # MOSI:3
         z1 = [func.normalize(z, p=2, dim=-1) for z in z1]
         z2 = [func.normalize(z, p=2, dim=-1) for z in z2]
         Z = all_gather_batch_with_grad(z1 + z2)
@@ -85,14 +84,13 @@ class CoMMLoss(nn.Module):
             acc.append((acc1 + acc2) / 2.)
         
         # Add curriculum learning losses 
-        curriculum_losses = [vision_loss, text_loss, audio_loss]
+        curriculum_losses = [vision_loss, text_loss]
         
         # Combine SSL contrastive losses with curriculum losses
         combined_losses = [
             (loss[0] + curriculum_losses[0])/2,  # Vision SSL + Vision curriculum
             (loss[1] + curriculum_losses[1])/2,  # Text SSL + Text curriculum  
-            (loss[2] + curriculum_losses[2])/2,  # Audio SSL + Audio curriculum
-            (loss[3] + self.curriculum_weight * cos_sim.mean())/2 # Joint SSL (no curriculum)
+            (loss[2] + self.curriculum_weight * cos_sim.mean())/2 # Joint SSL (no curriculum)
         ]
         
         ssl_acc = {"ssl_acc_%i"%i: acc_ for i, acc_ in enumerate(acc)}
@@ -114,60 +112,6 @@ class CoMMLoss(nn.Module):
             **ssl_acc, 
             **ssl_losses,
             # **curriculum_metrics
-        }
-
-    def reconstruct_from_loss(self, loss, N: int, device=None):
-        """
-        Reconstruct one consistent set of similarity matrices from a scalar InfoNCE loss.
-
-        Assumptions (non-unique reconstruction):
-        - Uniform negatives with identical logit value b across each row
-        - Diagonal positives share the same logit value a
-        - Off-diagonals set to b=0 w.r.t. additive row-invariance of softmax
-
-        Given L = -a + log(exp(a) + (2N-1)exp(b)) and setting b=0, we solve
-            exp(a) = (2N-1) / (exp(L) - 1)
-
-        Args:
-            loss: scalar torch.Tensor or float (the InfoNCE loss value used in infonce)
-            N: batch size used to form the block matrix (z1, z2)
-            device: optional torch device for returned tensors
-
-        Returns:
-            dict with keys: 'log_sim_Z', 'sim_Z', 'sim_zii', 'sim_zjj', 'sim_zij', 'a'
-        """
-        if not torch.is_tensor(loss):
-            loss = torch.tensor(float(loss))
-        if device is None:
-            device = loss.device
-
-        # Solve for a assuming b=0 and 2N-1 negatives per row
-        twoN_minus_1 = 2 * N - 1
-        # numerical stability
-        eps = 1e-12
-        exp_a = twoN_minus_1 / (torch.exp(loss) - 1.0 + eps)
-        a = torch.log(exp_a)
-
-        # Build synthetic similarity blocks consistent with the InfoNCE construction
-        sim_zij = torch.zeros((N, N), device=device)
-        sim_zij[torch.arange(N), torch.arange(N)] = a
-        sim_zii = torch.zeros((N, N), device=device)  # self-similarity block (diag masked during loss)
-        sim_zjj = torch.zeros((N, N), device=device)
-
-        sim_Z = torch.cat([
-            torch.cat([sim_zij, sim_zii], dim=1),
-            torch.cat([sim_zjj, sim_zij.T], dim=1)
-        ], dim=0)
-
-        log_sim_Z = func.log_softmax(sim_Z, dim=1)
-
-        return {
-            "log_sim_Z": log_sim_Z,
-            "sim_Z": sim_Z,
-            "sim_zii": sim_zii,
-            "sim_zjj": sim_zjj,
-            "sim_zij": sim_zij,
-            "a": a
         }
 
     def __str__(self):
