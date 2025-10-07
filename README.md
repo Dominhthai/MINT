@@ -9,17 +9,20 @@ Multimodal learning integrates complementary information from language, vision, 
 - **Trainer**: PyTorch Lightning with Hydra-configurable experiments run on GPU.
 
 ### Table of Contents
-- Overview
-- Methods: MINT
-- Objective and Accuracy
-- Checkpointing and Linear Probing
-- Installation
-- Datasets
-- Training and Evaluation
-- Logging and Checkpoints
-- Reproducing Results and Tips
-- License
-- Citation and References
+- [Abstract](#abstract)
+- [Overview](#overview)
+- [Methods](#methods)
+  - [MINT (ours)](#mint-ours)
+- [Objective and Accuracy](#objective-and-accuracy)
+- [Checkpointing and Linear Probing](#checkpointing-and-linear-probing)
+- [Environment Installation](#environment-installation)
+- [Datasets](#datasets)
+- [How to run?](#how-to-run)
+  - [Training](#training)
+  - [Evaluation with linear classification (binary)](#evaluation-with-linear-classification-binary)
+- [Logging and Checkpoints](#logging-and-checkpoints)
+- [Reproducing Results and Tips](#reproducing-results-and-tips)
+- [License](#license)
 
 ## Overview
 We proposed MINT, an information-theoretic framework for balanced multimodal representation learning. MINT alleviates modality imbalance by combining multimodal contrastive alignment with unimodal self-alignment through knowledge distillation and curriculum learning, while maintaining task-level consistency. Extensive experiments across four benchmark datasets show that MINT consistently outperforms prior methods, producing more stable and balanced multimodal representations. Further analyses confirm its ability to recover lost unimodal information and enhance cross-modal synergy, establishing MINT as a unified and robust framework for multimodal learning.
