@@ -84,11 +84,12 @@ python3 main.py \
     model.model.pretrained_kwargs.v_lstm_hidden_size=64 \
     model.model.pretrained_kwargs.video_out=32 \
     model.model.pretrained_kwargs.v_lstm_dropout=0.1 \
+    model.model.pretrained_kwargs.alpha=1.0 \
     model.model.curriculum_kwargs.v_tau=0.0 \
-    model.model.curriculum_kwargs.v_lam=0.05 \
+    model.model.curriculum_kwargs.v_lam=1.0 \
     model.model.curriculum_kwargs.v_fac=0.9 \
     model.model.curriculum_kwargs.t_tau=0.0 \
-    model.model.curriculum_kwargs.t_lam=1.0 \
+    model.model.curriculum_kwargs.t_lam=1.5 \
     model.model.curriculum_kwargs.t_fac=0.9 \
     seed=42 \
     trainer.max_epochs=100 \
@@ -113,6 +114,7 @@ python3 main.py \
     model.model.pretrained_kwargs.v_lstm_hidden_size=64 \
     model.model.pretrained_kwargs.video_out=32 \
     model.model.pretrained_kwargs.v_lstm_dropout=0.0 \
+    model.model.pretrained_kwargs.alpha=0.0 \
     model.model.curriculum_kwargs.v_tau=0.0 \
     model.model.curriculum_kwargs.v_lam=0.0 \
     model.model.curriculum_kwargs.v_fac=0.0 \
