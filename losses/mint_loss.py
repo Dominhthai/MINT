@@ -13,11 +13,9 @@ from utils import all_gather_batch_with_grad
 # from models.subNets.BertTextEncoder import BertTextEncoder
 
 
-class CoMMLoss(nn.Module):
+class MINTLoss(nn.Module):
     """
-        Normalized Temperature Cross-Entropy Loss for Multi-Modal Contrastive Learning as defined in CoMM [1]
-
-        [1] What to align in multimodal contrastive learning, Dufumier & Castillo-Navarro et al., ICLR 2025
+        Normalized Temperature Cross-Entropy Loss for Multi-Modal Contrastive Learning as defined in MINT [1]
     """
 
     def __init__(self, temperature=0.1, weights=None, curriculum_weight: bool=False):
@@ -25,7 +23,7 @@ class CoMMLoss(nn.Module):
         self.temperature = temperature
         self.weights = weights
         if not isinstance(curriculum_weight, bool):
-            raise TypeError("CoMMLoss.curriculum_weight must be a boolean (True/False)")
+            raise TypeError("MINTLoss.curriculum_weight must be a boolean (True/False)")
         self.curriculum_weight = 1.0 if curriculum_weight else 0.0
         
         self.INF = 1e8

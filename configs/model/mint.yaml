@@ -1,7 +1,7 @@
-name: CoMM
+name: mint
 
 model:
-  _target_: pl_modules.comm.CoMM
+  _target_: modules.mint.MINT
   encoder: # Multi-modal model to be trained
     _target_: models.mmfusion.MMFusion
     embed_dim: 40
@@ -13,12 +13,12 @@ model:
     dropout: 0
 
   projection: # Projection head 
-    _target_: pl_modules.comm.CoMM._build_mlp
+    _target_: modules.mint.MINT._build_mlp
     in_dim: ${model.model.encoder.embed_dim} # MM encoder dimension
     mlp_dim: 512 # Hidden dim of MLP projection head
     out_dim: 256 # Output embed dim of MLP projection head
 
-  loss_kwargs: # CoMM loss
+  loss_kwargs: # MINT loss
     temperature: 0.1 # Temperature in the objective function
     curriculum_weight: true # INCREASED weight for stronger teacher guidance
 

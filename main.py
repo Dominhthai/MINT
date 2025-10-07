@@ -12,15 +12,8 @@ from pytorch_lightning.loggers import TensorBoardLogger
 from pytorch_lightning.callbacks import ModelCheckpoint
 
 
-@hydra.main(version_base=None, config_name="train_multibench", config_path="./configs")
+@hydra.main(version_base=None, config_name="train", config_path="./configs")
 def main(cfg: DictConfig):
-    """Training/test of Multi-Modal models on MultiBench dataset.
-    Models currently implemented are:
-        - CoMM [ours!]
-        - CrossSelf
-        - CLIP
-        - SupervisedClassifier (from pretrained model)
-    """
 
     # fix the seed for repro
     torch.manual_seed(cfg.seed)
@@ -29,7 +22,7 @@ def main(cfg: DictConfig):
     # create model + save hyper-parameters
     dataset = cfg.data.data_module.dataset # Which MultiBench dataset to load
     kwargs = dict()
-    if cfg.model.name  == "CoMM":
+    if cfg.model.name  == "mint":
         encoders = instantiate(cfg[dataset]["encoders"]) # encoders specific to each dataset. This means cfg[dataset]=cfg.dataset, cfg[dataset]["encoders"]=cfg.dataset.encoders
         adapters = instantiate(cfg[dataset]["adapters"]) # adapters also specific
         kwargs["encoder"] = {
@@ -82,7 +75,7 @@ def main(cfg: DictConfig):
             verbose=True            # Show checkpoint saving messages
         ))
     else:
-        # For SSL models (CoMM, CLIP, etc.), monitor SSL accuracy
+        # For SSL models, monitor SSL accuracy
         callbacks.append(ModelCheckpoint(
             monitor='acc1',  # Monitor validation SSL accuracy (always available)
             mode='max',             # Save when accuracy increases

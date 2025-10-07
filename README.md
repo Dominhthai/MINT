@@ -63,7 +63,7 @@ This repository targets MultiBench-style datasets with multiple modality combina
 
 Common configuration fields:
 - `data.data_module.dataset`: dataset key (e.g., `mosi`, `visionandtouch`, etc.)
-- `model.name`: one of `CoMM`, `CrossSelf`, `CLIP`, `SupervisedClassifier`
+- `model.name`: mint
 - `modalities`: per-dataset modalities are specified in the config
 - Additional dataset-specific `encoders`, `adapters`, or projection heads (instantiated via Hydra)
 
@@ -77,9 +77,9 @@ Run self-supervised training:
 
  ## dataset="mosi" # Can be in ["mosi", "humor", "sarcasm", "mimic", "visionandtouch", "visionandtouch-bin"] 
 
-python3 main_multibench.py \
+python3 main.py \
     data.data_module.dataset=$dataset$ \
-    model=comm \
+    model=mint \
     mode="train" \
     model.model.loss_kwargs.curriculum_weight=true \
     model.model.pretrained_kwargs.use_finetune=false \
@@ -108,9 +108,9 @@ python3 main_multibench.py \
 ```bash
  ## dataset="mosi" # Can be in ["mosi", "humor", "sarcasm", "mimic", "visionandtouch", "visionandtouch-bin"] 
 
-!python3 main_multibench.py \
+!python3 main.py \
     data.data_module.dataset=$dataset$ \
-    model=comm \
+    model=mint \
     mode="test" \
     model.model.loss_kwargs.curriculum_weight=true \
     model.model.pretrained_kwargs.use_finetune=false \

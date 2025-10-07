@@ -10,7 +10,7 @@ from typing import Dict, List
 
 # Local imports
 from pl_modules.base import BaseModel
-from losses.comm_loss import CoMMLoss
+from losses.mint_loss import MINTLoss
 from losses.superloss import Superloss
 from losses.mgda import gradient_weights
 from models.mmfusion import MMFusion
@@ -20,16 +20,7 @@ from torch.nn.utils.rnn import pad_sequence, pack_padded_sequence, pad_packed_se
 
 from models.subNets.BertTextEncoder import BertTextEncoder
 
-class CoMM(BaseModel):
-    """ Contrastive MultiModal learning allowing the communication between modalities 
-    in a single multimodal space [1].
-    
-    It encodes a pair of mulitmodal data and outputs a pair of representations through
-    a single multimodal encoder.
-
-    [1] What to align in multimodal contrastive learning, Dufumier & Castillo-Navarro et al., ICLR 2025
-    """
-
+class MINT(BaseModel):
     def __init__(self,
                  encoder: MMFusion,
                  projection: nn.Module,
@@ -43,9 +34,9 @@ class CoMM(BaseModel):
             encoder: Multi-modal fusion encoder
             projection: MLP projector to the latent space
             optim_kwargs: Optimization hyper-parameters
-            loss_kwargs: Hyper-parameters for the CoMM loss.
+            loss_kwargs: Hyper-parameters for the MINT loss.
         """
-        super(CoMM, self).__init__(optim_kwargs)
+        super(MINT, self).__init__(optim_kwargs)
 
         # create the encoder
         self.encoder = encoder
@@ -54,7 +45,7 @@ class CoMM(BaseModel):
         self.head = projection
 
         # Build the loss
-        self.loss = CoMMLoss(**loss_kwargs)
+        self.loss = MINTLoss(**loss_kwargs)
 
         # Pretrained config
         self.language = pretrained_kwargs["language"]
