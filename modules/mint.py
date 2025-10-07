@@ -42,6 +42,7 @@ class MINT(BaseModel):
         self.encoder = encoder
 
         # build a 3-layers projector
+        # This is _build_mlp static below
         self.head = projection
 
         # Build the loss
