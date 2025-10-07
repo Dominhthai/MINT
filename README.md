@@ -70,13 +70,8 @@ Common configuration fields:
 ## How to run?
 Hydra entrypoint is `main_multibench.py` with `config_name="train_multibench"` and `config_path="./configs"`.
 
-### Training
-Run self-supervised training:
+### Self-supervised Training Mode
 ```bash
- ## dataset="mosi" # Can be in ["mosi", "humor", "sarcasm", "mimic", "visionandtouch", "visionandtouch-bin"] 
-
- ## dataset="mosi" # Can be in ["mosi", "humor", "sarcasm", "mimic", "visionandtouch", "visionandtouch-bin"] 
-
 python3 main.py \
     data.data_module.dataset=$dataset$ \
     model=mint \
@@ -106,8 +101,6 @@ python3 main.py \
 
 ### Evaluation with linear classification (binary)
 ```bash
- ## dataset="mosi" # Can be in ["mosi", "humor", "sarcasm", "mimic", "visionandtouch", "visionandtouch-bin"] 
-
 !python3 main.py \
     data.data_module.dataset=$dataset$ \
     model=mint \
