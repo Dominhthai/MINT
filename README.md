@@ -27,7 +27,7 @@ Multimodal learning integrates complementary information from language, vision, 
 ## Overview
 We proposed MINT, an information-theoretic framework for balanced multimodal representation learning. MINT alleviates modality imbalance by combining multimodal contrastive alignment with unimodal self-alignment through knowledge distillation and curriculum learning, while maintaining task-level consistency. Extensive experiments across four benchmark datasets show that MINT consistently outperforms prior methods, producing more stable and balanced multimodal representations. Further analyses confirm its ability to recover lost unimodal information and enhance cross-modal synergy, establishing MINT as a unified and robust framework for multimodal learning.
 
-Core entry script: `main_multibench.py` (Hydra config at `./configs`). Utilities: `utils.py`. Environment: `environment.yml`.
+Core entry script: `main.py` (Hydra config at `./configs`). Utilities: `utils.py`. Environment: `environment.yml`.
 
 ## Methods
 
@@ -68,7 +68,7 @@ Common configuration fields:
 - Additional dataset-specific `encoders`, `adapters`, or projection heads (instantiated via Hydra)
 
 ## How to run?
-Hydra entrypoint is `main_multibench.py` with `config_name="train_multibench"` and `config_path="./configs"`.
+Hydra entrypoint is `main.py` with `config_name="train"`, `dataset="multibench"`, `model="mint"` and `config_path="./configs"`.
 
 ### Self-supervised Training Mode
 ```bash
@@ -131,7 +131,7 @@ python3 main.py \
 - Logs: TensorBoard logs are written under the trainer `default_root_dir`, organized by `model.name` and dataset.
 - Checkpoints: Best and last checkpoints are saved automatically via `ModelCheckpoint`, monitored by `acc1` for SSL or `val_loss` for supervised unless configured otherwise.
 
-Change the checkpoint in [configs/train_multibench.yaml](configs/train_multibench.yaml)
+Change the checkpoint path `ckpt_path` in [configs/train.yaml](configs/train.yaml)
 
 ## Reproducing Results and Tips
 - Ensure seeds are set via config (`seed`) for reproducibility.
