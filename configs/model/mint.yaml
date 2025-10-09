@@ -11,6 +11,12 @@ model:
     n_layers: 1
     add_bias_kv: False
     dropout: 0
+    # encoders:
+    # input_adapters:
+  
+  # optim_kwargs:
+  #   lr: 1e-3
+  #   weight_decay: 1e-2
 
   projection: # Projection head 
     _target_: modules.mint.MINT._build_mlp

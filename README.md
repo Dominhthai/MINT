@@ -4,7 +4,7 @@
 Multimodal learning integrates complementary information from language, vision, and audio into unified representations. However, such representations often suffer from imbalance, where dominant modalities overshadow weaker ones, leading to biased embeddings and the lost unimodal information during fusion. In this work, we revisit this problem from an information-theoretic perspective, revealing that imbalance distorts the decomposition of multimodal information: uniqueness from weaker modalities is lost, redundancy from dominant ones is amplified, and synergy becomes less informative. To address this issue, we propose MINT, a framework for balanced multimodal representation. It consists of three complementary modules: Multimodal Contrastive Alignment (MCA) preserves redundancy and synergy through cross-modal alignment, Unimodal Self-Alignment (USA) recovers lost unimodal information by strengthening weaker modalities via knowledge distillation and curriculum learning, and Task Self-Alignment (TSA) enforces task-level consistency to maintain overall information balance. Experiments on multiple benchmarks show that MINT outperforms strong baselines and yields more balanced and informative multimodal representations.
 
 - **Implemented methods**: MINT
-- **Keywords** : Multimodal Imbalance Learing, Knowledge Distillation, Curriculumn Learning, Partial Information Decomposition(PID)
+- **Keywords** : Multimodal Imbalance Learning, Knowledge Distillation, Curriculumn Learning, Partial Information Decomposition(PID)
 - **Objectives**: InfoNCE-style and cosine similarity function, with careful handling of cross-view and same-view similarities
 - **Trainer**: PyTorch Lightning with Hydra-configurable experiments run on GPU.
 
