@@ -1,29 +1,3 @@
 # Dataset package
-from .multibench import (
-    MultiBenchDataModule,
-    MultiBench,
-    MultiBenchCLIP,
-    MultiBenchSupCon,
-    MultiBenchSSL,
-    MultiBenchCrossSelf,
-    AugMapper,
-    SimCLRAug,
-    MultiBenchAugmentations
-)
-from .tokenizer import SimpleTokenizer
-from .affect.get_data import Affect, collate_fn_timeseries
-
-__all__ = [
-    'MultiBenchDataModule',
-    'MultiBench',
-    'MultiBenchCLIP', 
-    'MultiBenchSupCon',
-    'MultiBenchSSL',
-    'MultiBenchCrossSelf',
-    'AugMapper',
-    'SimCLRAug',
-    'MultiBenchAugmentations',
-    'SimpleTokenizer',
-    'Affect',
-    'collate_fn_timeseries'
-]
+# Keep minimal imports to avoid import-time errors
+# Hydra can still access dataset.multibench.MultiBenchDataModule directly
