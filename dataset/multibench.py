@@ -187,7 +187,7 @@ class MultiBenchSupCon(MultiBench):
         aug_kwargs = MultiBenchAugmentations.parse_kwargs(dataset_kwargs)
         super().__init__(dataset, split, **dataset_kwargs)
         self.augment = MultiBenchAugmentations(**aug_kwargs)
-        if isinstance(self.dataset, MultimodalManipulationDataset): # removes img transform
+        if MultimodalManipulationDataset is not None and isinstance(self.dataset, MultimodalManipulationDataset): # removes img transform
             self.dataset.transform.transforms = self.dataset.transform.transforms[:-1]
 
     def __getitem__(self, i):
@@ -224,7 +224,7 @@ class MultiBenchSSL(MultiBench):
         self.aug1_specific = MultiBenchAugmentations(augmentations=aug1_type, p=aug1_prob)
         self.aug2_specific = MultiBenchAugmentations(augmentations=aug2_type, p=aug2_prob)
         
-        if isinstance(self.dataset, MultimodalManipulationDataset): # removes img transform
+        if MultimodalManipulationDataset is not None and isinstance(self.dataset, MultimodalManipulationDataset): # removes img transform
             self.dataset.transform.transforms = self.dataset.transform.transforms[:-1]
 
     def __getitem__(self, i):
@@ -257,7 +257,7 @@ class MultiBenchCrossSelf(MultiBench):
         super().__init__(dataset, split, **dataset_kwargs)
         self.augment = MultiBenchAugmentations(**aug_kwargs)
         self.img_transform = None
-        if isinstance(self.dataset, MultimodalManipulationDataset):  # removes img transform
+        if MultimodalManipulationDataset is not None and isinstance(self.dataset, MultimodalManipulationDataset):  # removes img transform
             self.img_transform = self.dataset.transform.transforms.pop(-1)
 
     def __getitem__(self, i):
