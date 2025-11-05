@@ -68,6 +68,8 @@ Common configuration fields:
 - `modalities`: per-dataset modalities are specified in the config
 - Additional dataset-specific `encoders`, `adapters`, or projection heads (instantiated via Hydra)
 
+**Important:** Update the dataset paths in [`dataset/catalog.json`](dataset/catalog.json) to match your local directory structure.
+
 ## How to run?
 Hydra entrypoint is `main.py` with `config_name="train"`, `dataset="multibench"`, `model="mint"` and `config_path="./configs"`.
 
