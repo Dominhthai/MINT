@@ -9,7 +9,7 @@ from collections import OrderedDict
 from typing import Dict, List
 
 # Local imports
-from pl_modules.base import BaseModel
+from modules.base import BaseModel
 from losses.mint_loss import MINTLoss
 from losses.superloss import Superloss
 from losses.mgda import gradient_weights

@@ -37,6 +37,13 @@ linear_probing:
   logging_level: "INFO"
   frequency: "by_epoch"
 
+linear_probing_reg:
+  _target_: evaluation.linear_probe.LinearProbingCallback
+  use_sklearn: false
+  fastsearch: false
+  logging_level: "INFO"
+  frequency: "by_epoch"
+
 optim:
   lr: 1e-3
   weight_decay: 1e-2
