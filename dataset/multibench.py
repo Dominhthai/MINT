@@ -57,11 +57,11 @@ class MultiBenchDataModule(LightningDataModule):
         """
         Args:
             dataset: in {"mimic", "mosi", "mosei", "humor", "sarcasm", "visionandtouch", "visionandtouch-bin"}
-            model: in {'Sup', 'SupervisedClassifier','CoMM', 'CLIP', 'CMC', 'CrossSelf', 'mint'}
+            model: in {'Sup', 'SupervisedClassifier', 'CLIP', 'CMC', 'CrossSelf', 'mint'}
                 The model defines the augmentations to apply:
                     - Sup, SupervisedClassifier: no augmentation, returns the modalities + label
                     - CLIP, CMC: no augmentation, returns the modalities without labels
-                    - CoMM, mint: augmentation for each modality, returns pairs of augmented modalities
+                    - mint: augmentation for each modality, returns pairs of augmented modalities (SSL)
                     - CrossSelf: augmentation + original modality
             batch_size: Batch size given to dataloader (train, val, test)
             num_workers: Number of CPU workers for data loading
