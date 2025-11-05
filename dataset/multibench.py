@@ -57,11 +57,11 @@ class MultiBenchDataModule(LightningDataModule):
         """
         Args:
             dataset: in {"mimic", "mosi", "mosei", "humor", "sarcasm", "visionandtouch", "visionandtouch-bin"}
-            model: in {'Sup', 'SupervisedClassifier','CoMM', 'CLIP', 'CMC', 'CrossSelf'}
+            model: in {'Sup', 'SupervisedClassifier','CoMM', 'CLIP', 'CMC', 'CrossSelf', 'mint'}
                 The model defines the augmentations to apply:
                     - Sup, SupervisedClassifier: no augmentation, returns the modalities + label
                     - CLIP, CMC: no augmentation, returns the modalities without labels
-                    - CoMM: augmentation for each modality, returns pairs of augmented modalities
+                    - CoMM, mint: augmentation for each modality, returns pairs of augmented modalities
                     - CrossSelf: augmentation + original modality
             batch_size: Batch size given to dataloader (train, val, test)
             num_workers: Number of CPU workers for data loading
@@ -82,7 +82,7 @@ class MultiBenchDataModule(LightningDataModule):
             self.train_dataset = MultiBenchCLIP(self.dataset, "train", **self.dataset_kwargs)
             self.val_dataset = MultiBenchCLIP(self.dataset, "val", **self.dataset_kwargs)
             self.test_dataset = MultiBenchCLIP(self.dataset, "test", **self.dataset_kwargs)
-        elif self.model == "CoMM":
+        elif self.model == "mint":
             self.train_dataset = MultiBenchSSL(self.dataset, "train", **self.dataset_kwargs)
             self.val_dataset = MultiBenchSSL(self.dataset, "val", **self.dataset_kwargs)
             self.test_dataset = MultiBenchSSL(self.dataset, "test", **self.dataset_kwargs)
