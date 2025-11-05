@@ -56,6 +56,7 @@ Set up the environment (conda is recommended):
 ```bash
 conda env create -f environment.yml
 conda activate multimodal
+pip install -r requirements.txt
 ```
 
 ## Datasets

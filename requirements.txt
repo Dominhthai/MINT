@@ -1,0 +1,35 @@
+# Core Deep Learning Framework
+torch>=2.0.0
+torchvision>=0.15.0
+torchaudio>=2.0.0
+
+# PyTorch Lightning and Configuration
+pytorch-lightning>=2.0.0
+hydra-core>=1.3.0
+omegaconf>=2.3.0
+
+# Model Components
+einops>=0.7.0
+timm>=0.9.0
+sentence-transformers>=2.2.0
+
+# Data Processing
+numpy>=1.24.0
+pandas>=2.0.0
+scikit-learn>=1.3.0
+scipy>=1.10.0
+
+# Utilities
+tqdm
+gdown
+tensorboard
+
+# HuggingFace Transformers (for BERT)
+transformers>=4.30.0
+tokenizers>=0.13.0
+
+# Additional dependencies
+datasets
+pillow
+matplotlib
+
