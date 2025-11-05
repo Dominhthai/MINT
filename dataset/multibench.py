@@ -13,9 +13,20 @@ from collections.abc import Iterable
 # Local imports
 from utils import GaussianBlur
 from dataset.affect.get_data import Affect, collate_fn_timeseries
-from dataset.mimic.get_data import MIMIC
-from dataset.robotics.multimodal_manipulation import (
-    MultimodalManipulationDataset, ProcessForce, ProcessImage)
+
+# Optional imports for datasets that may not be available
+try:
+    from dataset.mimic.get_data import MIMIC
+except ImportError:
+    MIMIC = None
+
+try:
+    from dataset.robotics.multimodal_manipulation import (
+        MultimodalManipulationDataset, ProcessForce, ProcessImage)
+except ImportError:
+    MultimodalManipulationDataset = None
+    ProcessForce = None
+    ProcessImage = None
 
 
 class MultiBenchDataModule(LightningDataModule):
@@ -111,6 +122,8 @@ class MultiBench(Dataset):
             self.catalog = json.load(f)
         self.collate_fn = None
         if dataset == "mimic":
+            if MIMIC is None:
+                raise ImportError(f"MIMIC dataset module not available. Please install required dependencies.")
             self.dataset = MIMIC(self.catalog[dataset]["path"], split=split, **dataset_kwargs)
         elif dataset in ["humor", "sarcasm", "mosi", "mosei"]:
             self.dataset = Affect(self.catalog[dataset]["path"],
@@ -118,6 +131,8 @@ class MultiBench(Dataset):
                                   split=split, **dataset_kwargs)
             self.collate_fn = self.collate_fn_affect
         elif dataset in ["visionandtouch", "visionandtouch-bin"]:
+            if MultimodalManipulationDataset is None:
+                raise ImportError(f"Robotics dataset module not available. Please install required dependencies.")
             dataset = "visionandtouch"
             self.dataset = MultimodalManipulationDataset(
                 self.catalog[dataset]["path"],

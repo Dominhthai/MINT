@@ -11,7 +11,7 @@ from .multibench import (
     MultiBenchAugmentations
 )
 from .tokenizer import SimpleTokenizer
-from .affect.get_data import Affect
+from .affect.get_data import Affect, collate_fn_timeseries
 
 __all__ = [
     'MultiBenchDataModule',
@@ -24,5 +24,6 @@ __all__ = [
     'SimCLRAug',
     'MultiBenchAugmentations',
     'SimpleTokenizer',
-    'Affect'
+    'Affect',
+    'collate_fn_timeseries'
 ]
