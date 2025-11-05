@@ -46,7 +46,7 @@ Core entry script: `main.py` (Hydra config at `./configs`). Utilities: `utils.py
 ## Checkpointing and Linear Probing
 PyTorch Lightning controls checkpointing, and by default it saves the best model according to a monitored validation metric.
 
-- By default (SSL methods), the code monitors `acc1` (downstream validation accuracy) and saves the top checkpoint automatically. 
+- By default, the code monitors `acc1` (downstream validation accuracy) and saves the top checkpoint automatically. 
 - Linear probing runs as a callback after validation. It trains a lightweight downstream classifier and logs metrics to TensorBoard, but it does not directly decide checkpoint saving unless you explicitly monitor its logged scalar with a `ModelCheckpoint`.
 - You can customize the monitored metric in configs or programmatically (e.g., to use linear probe accuracy) by setting a `ModelCheckpoint(monitor=...)` in the trainer callbacks.
 
@@ -63,7 +63,7 @@ pip install -r requirements.txt
 This repository targets MultiBench-style datasets with multiple modality combinations. Configure dataset, modalities, and task via Hydra configs in `./configs`.
 
 Common configuration fields:
-- `data.data_module.dataset`: dataset key (e.g., `mosi`, `visionandtouch`, etc.)
+- `data.data_module.dataset`: dataset key (e.g., `mosi`, `mosei`, etc.)
 - `model.name`: mint
 - `modalities`: per-dataset modalities are specified in the config
 - Additional dataset-specific `encoders`, `adapters`, or projection heads (instantiated via Hydra)
@@ -132,13 +132,13 @@ python3 main.py \
 
 ## Logging and Checkpoints
 - Logs: TensorBoard logs are written under the trainer `default_root_dir`, organized by `model.name` and dataset.
-- Checkpoints: Best and last checkpoints are saved automatically via `ModelCheckpoint`, monitored by `acc1` for SSL or `val_loss` for supervised unless configured otherwise.
+- Checkpoints: Best and last checkpoints are saved automatically via `ModelCheckpoint`, monitored by `acc1`.
 
-Change the checkpoint path `ckpt_path` in [configs/train.yaml](configs/train.yaml)
+**Note:** In test mode, add the checkpoint path `ckpt_path` in [`configs/train.yaml`](configs/train.yaml)
 
 ## Reproducing Results and Tips
 - Ensure seeds are set via config (`seed`) for reproducibility.
-- Monitor both `val_loss` and `acc1` to diagnose training quality.
+- Monitor `acc1` to diagnose training quality.
 - When using linear probing, remember that probe metrics are logged after validation—monitor an appropriate scalar if you want them to control checkpointing.
 
 ## License

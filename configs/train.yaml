@@ -4,6 +4,8 @@ defaults:
   - model: mint
 
 seed: 42
+# # Add a checkpoint path here in test mode
+# ckpt_path: "/path/to/best/model.pt"
 
 mode: "train"
 
