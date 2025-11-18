@@ -173,14 +173,14 @@ class MINT(BaseModel):
         # t_loss_raw += alpha*t_cosine
         
         # # Curriculum Learning
-        # # 1. Intra-Modal Curriculum: Superloss weighting based on difficulty
-        # v_loss_curriculum = self.v_superloss(v_loss_raw)
-        # t_loss_curriculum = self.t_superloss(t_loss_raw)
+        # 1. Intra-Modal Curriculum: Superloss weighting based on difficulty
+        v_loss_curriculum = self.v_superloss(v_loss_raw)
+        t_loss_curriculum = self.t_superloss(t_loss_raw)
         
         # # 2. No curriculumn learning
         
-        v_loss_curriculum = v_loss_raw.mean()
-        t_loss_curriculum = t_loss_raw.mean()
+        # v_loss_curriculum = v_loss_raw.mean()
+        # t_loss_curriculum = t_loss_raw.mean()
 
         return {'aug1_embed': z1,
                 'aug2_embed': z2,
