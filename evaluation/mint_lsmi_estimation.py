@@ -218,26 +218,24 @@ def train_entropy_estimators(train_loader, modal_1_dim, modal_2_dim,
         for model in models:
             model.train()
         losses = 0.0
-        num_samples = 0
         for batch in train_loader:
             modal_1, modal_2, _ = batch
             modal_1, modal_2 = modal_1.to(device), modal_2.to(device)
             batch_size = modal_1.shape[0]
             
+            optimizer.zero_grad()
             loss_1 = model_1(modal_1)
             loss_2 = model_2(modal_2)
             loss = loss_1 + loss_2
             
-            optimizer.zero_grad()
             loss.backward()
             optimizer.step()
             
             losses += loss.item() * batch_size
-            num_samples += batch_size
         scheduler.step()
         
         if (epoch + 1) % 10 == 0:
-            print(f'  Epoch [{epoch + 1}/{num_epochs}], Loss: {losses / num_samples:.4f}')
+            print(f'  Epoch [{epoch + 1}/{num_epochs}], Loss: {losses / len(train_loader.dataset):.4f}')
     
     return models
 
@@ -420,11 +418,23 @@ def extract_mint_features(mint_model, dataloader, device='cuda'):
             
             targets.append(y.detach().cpu())
     
+    # Concatenate all features
+    modal_1_feats = torch.cat(modal_1_features, dim=0)
+    modal_2_feats = torch.cat(modal_2_features, dim=0)
+    joint_feats = torch.cat(joint_features, dim=0)
+    targets_all = torch.cat(targets, dim=0)
+    
+    # Normalize features to prevent numerical instability in entropy estimation
+    # Standardize to zero mean and unit variance
+    modal_1_feats = (modal_1_feats - modal_1_feats.mean(dim=0)) / (modal_1_feats.std(dim=0) + 1e-8)
+    modal_2_feats = (modal_2_feats - modal_2_feats.mean(dim=0)) / (modal_2_feats.std(dim=0) + 1e-8)
+    joint_feats = (joint_feats - joint_feats.mean(dim=0)) / (joint_feats.std(dim=0) + 1e-8)
+    
     return {
-        'modal_1_features': torch.cat(modal_1_features, dim=0),
-        'modal_2_features': torch.cat(modal_2_features, dim=0),
-        'joint_features': torch.cat(joint_features, dim=0),
-        'targets': torch.cat(targets, dim=0)
+        'modal_1_features': modal_1_feats,
+        'modal_2_features': modal_2_feats,
+        'joint_features': joint_feats,
+        'targets': targets_all
     }
 
 
