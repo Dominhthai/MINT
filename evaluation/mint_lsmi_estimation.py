@@ -351,6 +351,10 @@ def extract_mint_features(mint_model, dataloader, device='cuda'):
     """
     Extract features from MINT model for LSMI estimation.
     
+    Extracts:
+    - Unimodal features from individual encoders (before fusion)
+    - Joint features from the full encoder (after fusion)
+    
     Args:
         mint_model: Trained MINT model
         dataloader: DataLoader with multimodal data
@@ -375,20 +379,44 @@ def extract_mint_features(mint_model, dataloader, device='cuda'):
             X = [x.to(device) if isinstance(x, torch.Tensor) else x for x in X]
             y = y.to(device)
             
-            # Extract features from encoder before projection
-            # MINT encoder outputs features for each modality separately
-            encoder_out = mint_model.encoder(X)
+            # Extract UNIMODAL features from individual encoders (before fusion)
+            # This is crucial for LSMI - we need features BEFORE multimodal fusion
+            encoder = mint_model.encoder
             
-            # Assuming encoder outputs [vision_features, text_features, joint_features]
-            if isinstance(encoder_out, list) or isinstance(encoder_out, tuple):
-                modal_1_features.append(encoder_out[0].detach().cpu())
-                modal_2_features.append(encoder_out[1].detach().cpu() if len(encoder_out) > 1 else encoder_out[0].detach().cpu())
-                joint_features.append(encoder_out[-1].detach().cpu())
+            # Get individual encoder outputs for each modality
+            z = []
+            for enc_idx, (enc, xi) in enumerate(zip(encoder.encoders, X)):
+                embedding = enc(xi)
+                # Handle dict output (with attention mask)
+                if isinstance(embedding, dict):
+                    embedding = embedding["token_embeddings"]
+                
+                # Apply input adapter if present
+                if encoder.input_adapters[enc_idx] is not None:
+                    embedding = encoder.input_adapters[enc_idx](embedding)
+                
+                # Pool the embeddings (mean pooling over sequence dimension)
+                if len(embedding.shape) == 3:  # (batch, seq, dim)
+                    embedding = embedding.mean(dim=1)  # (batch, dim)
+                
+                z.append(embedding)
+            
+            # Extract unimodal features
+            if len(z) >= 2:
+                modal_1_features.append(z[0].detach().cpu())
+                modal_2_features.append(z[1].detach().cpu())
             else:
-                # If single output, use it as joint features
-                joint_features.append(encoder_out.detach().cpu())
-                modal_1_features.append(encoder_out.detach().cpu())
-                modal_2_features.append(encoder_out.detach().cpu())
+                # Fallback if only one modality
+                modal_1_features.append(z[0].detach().cpu())
+                modal_2_features.append(z[0].detach().cpu())
+            
+            # Get joint (fused) features
+            joint_out = mint_model.encoder(X)
+            if isinstance(joint_out, list):
+                joint_out = joint_out[-1]  # Get last output (joint)
+            if len(joint_out.shape) == 3:
+                joint_out = joint_out.mean(dim=1)
+            joint_features.append(joint_out.detach().cpu())
             
             targets.append(y.detach().cpu())
     
