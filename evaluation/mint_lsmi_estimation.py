@@ -253,7 +253,9 @@ def get_entropy(dataloader, entropy_model, modality_idx=0, device='cuda'):
             h = entropy_model(input_data)
             entropies.append(h)
     
-    return torch.cat(entropies, dim=0).detach()
+    entropy_values = torch.cat(entropies, dim=0).detach()
+    print(f"  Entropy modality {modality_idx}: mean={entropy_values.mean():.4f}, min={entropy_values.min():.4f}, max={entropy_values.max():.4f}")
+    return entropy_values
 
 
 def get_mutual_info(dataloader, discriminator, modality='modal_1', n_classes=2, device='cuda'):
@@ -308,6 +310,14 @@ def estimate_LSMI(dataloader, discriminators, entropy_estimators, n_classes=2, d
     H_X1 = get_entropy(dataloader, entropy_estimators[0], modality_idx=0, device=device)
     H_X2 = get_entropy(dataloader, entropy_estimators[1], modality_idx=1, device=device)
     
+    # Debug: Print intermediate values
+    print(f"Debug - Mean values:")
+    print(f"  I(X1;Y): {I_X1Y.mean():.4f}")
+    print(f"  I(X2;Y): {I_X2Y.mean():.4f}")
+    print(f"  I(X1,X2;Y): {I_X1X2Y.mean():.4f}")
+    print(f"  H(X1): {H_X1.mean():.4f}")
+    print(f"  H(X2): {H_X2.mean():.4f}")
+    
     # Compute LSMI components
     r_plus = torch.minimum(H_X1, H_X2)
     r_minus = torch.minimum(H_X1 - I_X1Y, H_X2 - I_X2Y)
@@ -316,6 +326,12 @@ def estimate_LSMI(dataloader, discriminators, entropy_estimators, n_classes=2, d
     u_1 = I_X1Y - r
     u_2 = I_X2Y - r
     s = I_X1X2Y - r - u_1 - u_2
+    
+    print(f"Before RUS adjustment:")
+    print(f"  r: {r.mean():.4f}")
+    print(f"  u1: {u_1.mean():.4f}")
+    print(f"  u2: {u_2.mean():.4f}")
+    print(f"  s: {s.mean():.4f}")
     
     # Adjust to ensure non-negative values
     r, u_1, u_2, s = RUS_adjustment([r, u_1, u_2, s])
