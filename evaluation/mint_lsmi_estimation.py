@@ -364,27 +364,27 @@ def estimate_LSMI(dataloader, discriminators, entropy_estimators, n_classes=2, d
 def extract_mint_features(mint_model, dataloader, device='cuda'):
     """
     Extract features from MINT model for LSMI estimation.
-    
+
     Extracts:
     - Unimodal features from individual encoders (before fusion)
     - Joint features from the full encoder (after fusion)
-    
+
     Args:
         mint_model: Trained MINT model
         dataloader: DataLoader with multimodal data
         device: Device
-        
+
     Returns:
         Dictionary with modal_1_features, modal_2_features, joint_features, targets
     """
     print("Extracting features from MINT model...")
     mint_model.eval()
-    
+
     modal_1_features = []
     modal_2_features = []
     joint_features = []
     targets = []
-    
+
     with torch.no_grad():
         for batch in dataloader:
             X, y = batch
@@ -392,60 +392,57 @@ def extract_mint_features(mint_model, dataloader, device='cuda'):
                 X = [X]
             X = [x.to(device) if isinstance(x, torch.Tensor) else x for x in X]
             y = y.to(device)
-            
-            # Extract UNIMODAL features from individual encoders (before fusion)
-            # This is crucial for LSMI - we need features BEFORE multimodal fusion
+
+            # Extract UNIMODAL features using the proper MMFusion method
             encoder = mint_model.encoder
-            
-            # Get individual encoder outputs for each modality
-            z = []
-            for enc_idx, (enc, xi) in enumerate(zip(encoder.encoders, X)):
-                embedding = enc(xi)
-                # Handle dict output (with attention mask)
-                if isinstance(embedding, dict):
-                    embedding = embedding["token_embeddings"]
-                
-                # Apply input adapter if present
-                if encoder.input_adapters[enc_idx] is not None:
-                    embedding = encoder.input_adapters[enc_idx](embedding)
-                
-                # Pool the embeddings (mean pooling over sequence dimension)
-                if len(embedding.shape) == 3:  # (batch, seq, dim)
-                    embedding = embedding.mean(dim=1)  # (batch, dim)
-                
-                z.append(embedding)
-            
-            # Extract unimodal features
-            if len(z) >= 2:
-                modal_1_features.append(z[0].detach().cpu())
-                modal_2_features.append(z[1].detach().cpu())
-            else:
-                # Fallback if only one modality
-                modal_1_features.append(z[0].detach().cpu())
-                modal_2_features.append(z[0].detach().cpu())
-            
-            # Get joint (fused) features
-            joint_out = mint_model.encoder(X)
+
+            # Get individual modality features using encode_single_mod
+            modal_1_feat = encoder.encode_single_mod(X[0], 0)  # Modality 0 (vision)
+            modal_2_feat = encoder.encode_single_mod(X[1], 1)  # Modality 1 (text)
+
+            # Handle dict output (with attention mask)
+            if isinstance(modal_1_feat, dict):
+                modal_1_feat = modal_1_feat["token_embeddings"]
+            if isinstance(modal_2_feat, dict):
+                modal_2_feat = modal_2_feat["token_embeddings"]
+
+            # Pool the embeddings (mean pooling over sequence dimension)
+            if len(modal_1_feat.shape) == 3:  # (batch, seq, dim)
+                modal_1_feat = modal_1_feat.mean(dim=1)  # (batch, dim)
+            if len(modal_2_feat.shape) == 3:
+                modal_2_feat = modal_2_feat.mean(dim=1)
+
+            modal_1_features.append(modal_1_feat.detach().cpu())
+            modal_2_features.append(modal_2_feat.detach().cpu())
+
+            # Get joint (fused) features using the full encoder
+            joint_out = encoder(X)  # This returns a list of features
             if isinstance(joint_out, list):
                 joint_out = joint_out[-1]  # Get last output (joint)
             if len(joint_out.shape) == 3:
                 joint_out = joint_out.mean(dim=1)
             joint_features.append(joint_out.detach().cpu())
-            
+
             targets.append(y.detach().cpu())
-    
+
     # Concatenate all features
     modal_1_feats = torch.cat(modal_1_features, dim=0)
     modal_2_feats = torch.cat(modal_2_features, dim=0)
     joint_feats = torch.cat(joint_features, dim=0)
     targets_all = torch.cat(targets, dim=0)
-    
+
     # Normalize features to prevent numerical instability in entropy estimation
     # Standardize to zero mean and unit variance
     modal_1_feats = (modal_1_feats - modal_1_feats.mean(dim=0)) / (modal_1_feats.std(dim=0) + 1e-8)
     modal_2_feats = (modal_2_feats - modal_2_feats.mean(dim=0)) / (modal_2_feats.std(dim=0) + 1e-8)
     joint_feats = (joint_feats - joint_feats.mean(dim=0)) / (joint_feats.std(dim=0) + 1e-8)
-    
+
+    print(f"Feature extraction complete:")
+    print(f"  Modality 1 (vision): {modal_1_feats.shape}")
+    print(f"  Modality 2 (text): {modal_2_feats.shape}")
+    print(f"  Joint features: {joint_feats.shape}")
+    print(f"  Labels: {targets_all.shape}")
+
     return {
         'modal_1_features': modal_1_feats,
         'modal_2_features': modal_2_feats,
