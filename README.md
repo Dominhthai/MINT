@@ -141,6 +141,24 @@ python3 main.py \
 - Monitor `acc1` to diagnose training quality.
 - When using linear probing, remember that probe metrics are logged after validation—monitor an appropriate scalar if you want them to control checkpointing.
 
+## LSMI Estimation: Quantifying R, U, S
+
+After training MINT, you can quantify **Redundancy (R)**, **Uniqueness (U₁, U₂)**, and **Synergy (S)** using our LSMI estimation module:
+
+```bash
+python evaluate_mint_lsmi.py \\
+    --ckpt_path path/to/checkpoint.ckpt \\
+    --dataset mosi \\
+    --device cuda
+```
+
+This will analyze how well MINT recovers:
+- **R**: Shared information between modalities
+- **U**: Unique information from each modality (validates recovery from weak modalities)
+- **S**: Synergistic information from multimodal fusion
+
+See [`evaluation/LSMI_README.md`](evaluation/LSMI_README.md) for detailed usage.
+
 ## License
 MIT License. See `LICENSE` for details.
 
